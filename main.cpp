@@ -39,7 +39,7 @@ public:
 	void output ();
 	Car & Car::operator=(const Car & carB);
 	friend bool Car::operator==(const Car CarObj1, const Car CarObj2);
-	virtual void setKind (std::string kindInit);
+	virtual void setKind (string kindInit);
 };
 
 /**************************************************
@@ -53,7 +53,7 @@ public:
 	FreightCar (string reportingMarkInit, int carNumberInit, string kindInit, bool loadedInit, string destinationInit) { setup (reportingMarkInit, carNumberInit, kindInit, loadedInit, destinationInit); } //other constructor
 	~FreightCar () {}
 	FreightCar & FreightCar::operator=(const FreightCar & carB);
-	virtual void setKind (std::string kindInit);
+	virtual void setKind (string kindInit);
 };
 
 /**************************************************
@@ -67,7 +67,7 @@ public:
 	PassengerCar (string reportingMarkInit, int carNumberInit, string kindInit, bool loadedInit, string destinationInit) { setup (reportingMarkInit, carNumberInit, kindInit, loadedInit, destinationInit); } //other constructor
 	~PassengerCar () {}
 	PassengerCar & PassengerCar::operator=(const PassengerCar & carB);
-	virtual void setKind (std::string kindInit);
+	virtual void setKind (string kindInit);
 };
 
 /**************************************************
@@ -108,21 +108,26 @@ public:
 	}
 	StringOfCars (const StringOfCars* &StringOfCarsObj)  //copy constructor
 	{
-		carArrayPtr = new Car*[ARRAY_SIZE];
-		// set all ptrs to zero
-		for (int i = 0; i < ARRAY_SIZE; i++)
-			carArrayPtr[i] = 0;
-		carCount = 0;
-		for (int i = 0; i < ARRAY_SIZE; i++)
-		{
-			push ((*StringOfCarsObj->carArrayPtr[i]));
+		Node * currentNodePtr;
+		head = 0;
+		tail = 0;
+		currentNodePtr = StringOfCarsObj->head;
+		while (currentNodePtr != 0) {
+			push((*currentNodePtr->data));
+			currentNodePtr = currentNodePtr->next;
 		}
 	}
 	~StringOfCars ()
-	{ // destructor
-		for (int i = 0; i < ARRAY_SIZE; i++)
-			delete carArrayPtr[i];
-		delete[] carArrayPtr;
+	{
+		Node * currentNodePtr;
+		Node * previousNodePtr;
+		currentNodePtr = head;
+		while (currentNodePtr != 0) {
+			delete currentNodePtr->data;
+			previousNodePtr = currentNodePtr;
+			currentNodePtr = currentNodePtr->next;
+			delete previousNodePtr;
+		}
 	} // destructor
 
 	void output ();
@@ -143,7 +148,7 @@ int main ()
 	StringOfCars cars;
 	input (cars);
 	cars.output ();
-	//system ("pause");
+	system ("pause");
 	return 0;
 }
 
@@ -193,7 +198,7 @@ Car & Car::operator=(const Car & carB)
 /********************* Car::setKind ***************
 ** Sets the car kind
 **************************************************/
-void Car::setKind (std::string kindInit)
+void Car::setKind (string kindInit)
 {
 	kind = "other";
 	if (kindInit == "business" || kindInit == "maintenance")
@@ -219,7 +224,7 @@ FreightCar & FreightCar::operator=(const FreightCar & carB)
 /**************** FreightCar::setKind *************
 ** Sets the car kind
 **************************************************/
-void FreightCar::setKind (std::string kindInit)
+void FreightCar::setKind (string kindInit)
 {
 	kind = "otherFreight";
 	if (kindInit == "box" || kindInit == "tank" || kindInit == "flat")
@@ -245,7 +250,7 @@ PassengerCar & PassengerCar::operator=(const PassengerCar & carB)
 /**************** FreightCar::setKind *************
 ** Sets the car kind
 **************************************************/
-void PassengerCar::setKind (std::string kindInit)
+void PassengerCar::setKind (string kindInit)
 {
 	kind = "otherPassenger";
 	if (kindInit == "chair" || kindInit == "sleeper")
@@ -273,17 +278,22 @@ bool operator==(const Car CarObj1, const Car CarObj2)
 **************************************************/
 void StringOfCars::output ()
 {
-	if (carCount > 0)
+	Node* currentNodePtr;
+	int i = 1;
+	if (head == 0)
 	{
-		for (int i = 0; i < carCount; i++)
-		{
-			cout << "Car #" << i + 1 << endl;
-			(*carArrayPtr[i]).output ();
-		}
+		cout << "NO cars" << endl;
 	}
 	else
 	{
-		cout << "NO cars" << endl;
+		currentNodePtr = head;
+		while(currentNodePtr != 0)
+		{
+			cout << "Car #" << i << endl;
+			currentNodePtr->data->output();
+			currentNodePtr = currentNodePtr->next;
+			i++;
+		}
 	}
 }
 
@@ -375,7 +385,7 @@ void input (StringOfCars & StringOfCarsObj)
 {
 	string carType, carName, reportingMarkInit, kindInit, destinationInit, loadedInit;
 	int carNumberInit;
-	std::fstream inputFile;
+	fstream inputFile;
 	inputFile.open ("data.txt");
 	if (!inputFile)
 	{
